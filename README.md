@@ -17,7 +17,7 @@ All members are initialized using initializer lists, ensuring correctness and co
 
 ### Manual Heap Memory Management
 
-The `Playlist` class dynamically allocates and frees memory for storing songs.
+The Playlist class dynamically allocates and frees memory for storing songs.
 
 ### Custom Copy Constructor (Deep Copy)
 
