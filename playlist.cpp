@@ -1,5 +1,19 @@
 #include "playlist.h"
+#include <algorithm>
 #include <iostream>
+
+void Playlist::init_form(const Playlist& other){
+    count = other.count;
+    if(count == 0){
+        songs = nullptr;
+        return;
+    }
+
+    songs = new Song*[count];
+    for (size_t i = 0; i < count; ++i) {
+        songs[i] = new Song(*other.songs[i]); // deep copy
+    }
+}
 
 Playlist::Playlist() : songs(nullptr), count(0) {
     std::cout << "Empty playlist created" << std::endl;
@@ -15,10 +29,7 @@ Playlist::~Playlist(){
 
 Playlist::Playlist(const Playlist& anotherPlaylist) : count(anotherPlaylist.count){
     std::cout << "Copying playlist..." << std::endl;
-    songs = new Song*[count];
-    for(size_t i = 0; i < count; ++i){
-        songs[i] = new Song(*anotherPlaylist.songs[i]);
-    }
+    init_form(anotherPlaylist);
 }
 
 Playlist::Playlist(Playlist&& anotherPlaylist) noexcept 
@@ -27,6 +38,18 @@ Playlist::Playlist(Playlist&& anotherPlaylist) noexcept
         
         anotherPlaylist.songs = nullptr;
         anotherPlaylist.count = 0;
+}
+
+void Playlist::swap(Playlist& other) noexcept{
+    using std::swap;
+    swap(songs, other.songs);
+    swap(count, other.count);
+}
+
+Playlist& Playlist::operator=(Playlist rhs){
+    std::cout << "[ASSIGN] operator= (copy-and-swap)\n";
+    swap(rhs);
+    return *this;
 }
 
 void Playlist::addSong(const Song& song){
