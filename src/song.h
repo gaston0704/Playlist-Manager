@@ -11,6 +11,7 @@ private:
 
 public:
     Song(const std::string& title, const std::string& singer, int duration);
+
     void print() const;
 };
 
