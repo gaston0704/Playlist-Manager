@@ -2,6 +2,28 @@
 #include "song.h"
 #include <utility>
 #include <iostream>
+#include <thread>
+#include <mutex>
+
+Playlist sharedPlaylist;// Shared playlist for demonstration
+
+std::mutex playlistMutex;// Mutex for synchronizing access to sharedPlaylist
+
+// Unsafe way to add songs without synchronization
+void addSongsUnsafely() {
+    for (int i = 0; i < 50; ++i) {
+        sharedPlaylist.addSong(Song("Unsync", "Thread", 100));
+        // Acces simultan la aceeași resursă → unsafe
+    }
+}
+
+// Correct way to add songs with synchronization
+void addSongsSafely() {
+    for (int i = 0; i < 50; ++i) {
+        std::lock_guard<std::mutex> lock(playlistMutex); // RAII lock
+        sharedPlaylist.addSong(Song("Safe", "Thread", 100));
+    }
+}
 
 int main(){
 
@@ -45,11 +67,41 @@ int main(){
     b.print();
     c.print();
 
-    std::cout << "End of main (Destructors will run)" << std::endl;
-
     Song s1("Wildfire", "Sub Focus", 215);
     Song s2 = s1;         // deep copy
     Song s3 = std::move(s1); // move
+
+    //unsafe multithreading example
+    std::cout << "\nUNSAFE MULTITHREADING DEMO (NO SYNCHRONIZATION)\n";
+
+    sharedPlaylist = Playlist(); // reset
+    
+    std::thread t1(addSongsUnsafely);
+    std::thread t2(addSongsUnsafely);
+
+    t1.join();
+    t2.join();
+
+    std::cout << "Playlist after UNSAFE multithreading:\n";
+    sharedPlaylist.print();
+    std::cout << "Expected around 100 songs, but result will be incorrect due to race conditions.\n\n";
+
+    //safe multithreading example
+
+    sharedPlaylist = Playlist(); // reset
+
+    std::thread t3(addSongsSafely);
+    std::thread t4(addSongsSafely);
+
+    t3.join();
+    t4.join();
+
+    std::cout << "Playlist after SAFE multithreading:\n";
+    sharedPlaylist.print();
+    std::cout << "Exactly 100 songs — synchronization using mutex + RAII lock_guard works correctly.\n";
+
+
+    std::cout << "End of main (Destructors will run)" << std::endl;
 
     return 0;
 }
