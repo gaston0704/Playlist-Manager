@@ -10,6 +10,7 @@ set(SRC_FILES
 src/main.cpp
 src/song.cpp
 src/playlist.cpp
+src/song_handle.cpp
 )
 
 # Include directories
