@@ -46,5 +46,10 @@ int main(){
     c.print();
 
     std::cout << "End of main (Destructors will run)" << std::endl;
+
+    Song s1("Guapa", "Marc Moon", 156);
+    Song s2 = s1;         // deep copy
+    Song s3 = std::move(s1); // move
+
     return 0;
 }
